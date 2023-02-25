@@ -1,8 +1,8 @@
 import request from "@/utils/request";
 
-// 获取新音乐
-export function getNewMusic(limit) {
+// 获取音乐歌词
+export function getMusicLyric(id) {
   return request({
-    url: '/personalized/newsong?limit=' + limit
+    url: '/lyric?id=' + id
   })
 }

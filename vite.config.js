@@ -9,13 +9,14 @@ export default defineConfig(() => {
     plugins: [
       vue(),
       Components({
+        directoryAsNamespace: true,
         resolvers: [VantResolver()],
       })
     ],
     hmr: true,
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, './src')
+        '@': path.resolve(__dirname, 'src')
       }
     },
     server: {

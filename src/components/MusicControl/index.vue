@@ -1,60 +1,68 @@
 <template>
   <router-view />
-  <div class="music-control">
-    <div class="left">
+  <div class="music-control" @click.self="showDetail = true">
+    <div class="left" @click="showDetail = true">
       <van-image
         width="1.2rem"
         height="1.2rem"
-        :src="playList[playListIndex].al ? playList[playListIndex].al.picUrl : playList[playListIndex].picUrl"
+        :src="playList[playListIndex].al.picUrl"
       />
       <div class="song-name">
         <span class="base-line-one">{{ playList[playListIndex].name }}</span>
-        <span>横滑切换歌曲哦~</span>
+        <span>这里是歌词~</span>
       </div>
     </div>
     <div class="right">
       <van-icon name="play-circle-o"  size="1rem" 
-        color="#666" style="margin-right:20px;" 
-        @click="autoplay(true)" v-if="!playStatus"/>
+        color="#666" style="margin-right:0.8rem" 
+        @click="store.setPlayStatus(true)" v-if="!playStatus"/>
       <van-icon name="pause-circle-o" size="1rem" 
-        color="#666" style="margin-right:20px;" 
-        @click="autoplay(false)" v-else/>
-      <van-icon name="bars" size="0.9rem" color="#666"/>
+        color="#666" style="margin-right:0.8rem;" 
+        @click="store.setPlayStatus(false)" v-else/>
+      <base-icon size="0.8rem" color="#666" name="icon-bofangduilie"/>
       <audio 
-        :src="playList[playListIndex].id ? 
-          `https://music.163.com/song/media/outer/url?id=${playList[playListIndex].id}.mp3` :
-          ''" 
+        :src="`https://music.163.com/song/media/outer/url?id=${playList[playListIndex].id}.mp3`" 
         ref="audio"
+        @ended="store.setPlayIndex(1)"
+        @timeupdate="audioTime"
+        @error="audioError"
+        @canplay="store.setDuration"
       ></audio>
     </div>
   </div>
+  <van-popup 
+    v-model:show="showDetail" 
+    position="right" 
+    :style="{ height: '100%', width: '100%' }"
+    class="music-detail">
+    <MusicDetail/>
+  </van-popup>
 </template>
 
 <script>
-  import { reactive,toRefs,ref,onMounted } from 'vue';
+  import { ref,onMounted,reactive,toRefs } from 'vue';
   import { storeToRefs } from 'pinia';
   import { useMusicControl } from '@/store/musicControl';
-  import { getNewMusic } from '@/api/musicControl';
+  import MusicDetail from './MusicDetail.vue';
 
   export default {
     name: 'MusicControl',
+    components: {
+      MusicDetail
+    },
     setup() {
+      // store
       const store = useMusicControl();
       // audio DOM元素
       const audio = ref();
       // 对 store 进行解构
-      const { playList,playListIndex,playStatus } = storeToRefs(store);
+      const { playList,playListIndex,playStatus,showDetail } = storeToRefs(store);
 
-      // 获取随机歌曲
-      getMusic();
-      async function getMusic(limit=1) {
-        let { result } = await getNewMusic(limit);
-        store.playList = result;
+      function audioTime(e) {
+        store.currentTime = e.target.currentTime;
       }
-
-      // 播放音乐
-      function autoplay(status) {
-        store.setPlayStatus(status);
+      function audioError() {
+        console.log('播放错误，需要登录或者需要VIP');
       }
 
       onMounted(() => {
@@ -62,11 +70,14 @@
       })
 
       return {
+        store,
         playList,
         playListIndex,
         playStatus,
         audio,
-        autoplay
+        showDetail,
+        audioTime,
+        audioError
       }
     }
   }
@@ -110,5 +121,14 @@
       display: flex;
       align-items: center;
     }
+  }
+</style>
+
+<style>
+  .music-detail {
+    display: flex;
+    flex-flow: column;
+    justify-content: space-between;
+    background-color: #2b2b2b;
   }
 </style>

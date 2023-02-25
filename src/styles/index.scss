@@ -1,7 +1,14 @@
+@import url('./animation.scss');
+
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 #app { overflow-x: hidden; }
+p {
+  margin: 0;
+  padding: 0;
+}
 
 // 让文字显示两行，溢出部分显示省略号
 .base-line-two {

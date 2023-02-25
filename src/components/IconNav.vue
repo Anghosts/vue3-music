@@ -1,12 +1,13 @@
 <template>
   <div class="icon-nav">
-    <div class="icon-nav-item" v-for="item in iconNavList" :key="item.title">
+    <div class="icon-nav-item" v-for="(item,index) in iconNavList" :key="index">
       <van-icon 
         :name="item.icon" 
         :size="item.size || size" 
         :color="item.color || iconColor"
+        :style="item.style || ''"
       />
-      <span :style="{color: textColor}">{{ item.title }}</span>
+      <span :style="{color: textColor}">{{ item.title || '' }}</span>
     </div>
   </div>
 </template>

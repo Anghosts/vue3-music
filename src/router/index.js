@@ -1,5 +1,5 @@
 import { createRouter,createWebHashHistory } from "vue-router";
-import MusicControl from '@/components/MusicControl.vue';
+import MusicControl from '@/components/MusicControl/index.vue';
 
 // 创建路由规则
 const routes = [{

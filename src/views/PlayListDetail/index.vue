@@ -96,7 +96,6 @@
       async function getSongs(id, limit=20, offset=0) {
         let { songs } = await getAllMusic(id, limit, offset);
         state.songs = songs;
-        // store.playList = songs;
       }
 
       function handleScroll() {
@@ -119,7 +118,7 @@
             state.opacity = 0;
           }
           if (y > navHeight && y < baseHeight) {
-            state.opacity = (scrollTop / baseHeight).toFixed(2);
+            state.opacity = (scrollTop / headerHeight).toFixed(2);
           }
         }
       }

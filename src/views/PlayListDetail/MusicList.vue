@@ -2,7 +2,7 @@
   <div class="music">
     <div class="header-play" :class="{fixed:isFixed}" >
       <div class="left">
-        <van-icon name="play-circle-o" size="0.7rem"/>
+        <base-icon name="icon-shipin-r" size="0.7rem"/>
         <strong>播放全部</strong>
         <span>（共{{ songs.length }}首）</span>
       </div>
@@ -18,13 +18,13 @@
     <div class="music-list" :class="{fixed:isFixed}">
       <div 
         class="music-list-item"
-        :class="{active: index==playListIndex}"
+        :class="{active: song.id == playList[playListIndex].id}"
         v-for="(song, index) in songs" 
         :key="song.id" 
         @click="playMusic(index)"
       >
         <div class="left">
-          <span class="index" v-if="index !== playListIndex">{{ index + 1 }}</span>
+          <span class="index" v-if="song.id !== playList[playListIndex].id">{{ index + 1 }}</span>
           <div class="play-status" v-else>
             <van-icon name="play" color="#dd1818" size="0.7rem" v-show="!playStatus"/>
             <van-icon name="pause" color="#dd1818" size="0.7rem" v-show="playStatus"/>
@@ -37,10 +37,9 @@
           </div>
         </div>
         <div class="right">
-          <van-icon 
-            name="video" 
+          <base-icon 
+            name="icon-shipin" 
             color="#999"
-            size="0.6rem" 
             style="margin-right:20px" 
             v-if="song.mv" 
           />
@@ -52,7 +51,7 @@
 </template>
 
 <script>
-  import { nextTick,ref } from 'vue';
+  import { nextTick } from 'vue';
   import { storeToRefs } from 'pinia';
   import { useMusicControl } from '@/store/musicControl';
 
@@ -60,27 +59,22 @@
     name: 'MusicList',
     props: ['songs', 'subscribedCount', 'isFixed'],
     setup(props) {
-      // 当前播放列表下标
-      const playListIndex = ref(null);
       // store
       const musicControl = useMusicControl();
       // 播放状态
-      const { playStatus } = storeToRefs(musicControl);
+      const { playStatus,playList,playListIndex } = storeToRefs(musicControl);
 
       // 播放音乐
       function playMusic(index) {
         musicControl.playList = props.songs;
-        musicControl.playListIndex = index;
-        playListIndex.value = index;
-        nextTick(() => {
-          musicControl.setPlayStatus(true);
-        })
+        musicControl.setPlayIndex(0, index);
       }
 
       return {
         playMusic,
         playListIndex,
         playStatus,
+        playList
       }
     }
   }
@@ -174,6 +168,10 @@
               }
             }
           }
+        }
+        .right {
+          display: flex;
+          align-items: center;
         }
       }
     }
