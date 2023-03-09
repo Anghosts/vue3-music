@@ -7,6 +7,7 @@ import { createPinia } from 'pinia'
 import Vue3Marquee from 'vue3-marquee'
 import IconNav from './components/IconNav.vue'
 import BaseIcon from './components/BaseIcon.vue'
+import MusicList from './components/MusicList.vue'
 
 import 'vue3-marquee/dist/style.css'
 import './styles/index.scss'
@@ -20,4 +21,5 @@ createApp(App)
   .use(Vue3Marquee)
   .component(IconNav.name ,IconNav)
   .component(BaseIcon.name ,BaseIcon)
+  .component(MusicList.name ,MusicList)
   .mount('#app')

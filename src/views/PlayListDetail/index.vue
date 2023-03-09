@@ -1,5 +1,5 @@
 <template>
-  <div class="header">
+  <div class="play-header">
     <div class="bg"><img :src="playListData.coverImgUrl" /></div>
     <div class="top-nav" :style="{backgroundColor:`rgba(100,100,100,${opacity})`}">
       <div class="left">
@@ -49,12 +49,10 @@
   import { reactive,toRefs,onBeforeUnmount,onMounted } from 'vue';
   import { useMusicControl } from '@/store/musicControl';
   import { getPlayListDetail,getAllMusic } from '@/api/playListDetail';
-  import MusicList from './MusicList.vue';
   import getScrollTop from '@/utils/getScrollTop';
 
   export default {
     name: 'PlayListDetail',
-    components: { MusicList },
     setup() {
       const state = reactive({
         // 歌单详情信息
@@ -82,7 +80,6 @@
         // 音乐列表头部是否固定
         isFixed: false,
       })
-      const store = useMusicControl();
       
       getDetail();
       // 获取歌单详情数据
@@ -99,7 +96,7 @@
       }
 
       function handleScroll() {
-        var header = document.querySelector('.header');
+        var header = document.querySelector('.play-header');
         var nav = document.querySelector('.top-nav');
 
         window.onscroll = function() {
@@ -138,7 +135,7 @@
 </script>
 
 <style lang="scss" scoped>
- .header {
+ .play-header {
     position: relative;
     height: 240px;
     .bg {

@@ -7,7 +7,7 @@
       <span>云村</span>
       <span>视频</span>
     </div>
-    <van-icon name="search" size="0.7rem"/>
+    <van-icon name="search" size="0.7rem" @click="$router.push('/search')"/>
   </div>
 </template>
 

@@ -15,7 +15,8 @@
       <img :src="getAssetsFile('images/needle-ab.png')" alt="" :class="{play: playStatus}">
       <div :class="{play: playStatus, pause: !playStatus}">
         <img :src="getAssetsFile('images/disc.png')" alt="">
-        <img :src="store.nowPlayData.al.picUrl" alt="">
+        <img :src="store.nowPlayData.al.picUrl" alt="" v-if="store.nowPlayData.al">
+        <img :src="getAssetsFile('images/disc_default.png')" alt="" v-else>
       </div>
     </div>
     <div class="lyric" v-show="showLyric" @click="showLyric = false" ref="lyric">
@@ -138,6 +139,7 @@
       const nav = ref();
       // 监视歌曲播放时间变化，自动滚动歌词
       watch(()=>currentTime.value, () => {
+        if (!lyric.value) return;
         let p = lyric.value.querySelector('p.active');
         let centerEle = center.value;
         let centerHeight = centerEle.offsetHeight;

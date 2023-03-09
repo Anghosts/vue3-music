@@ -1,6 +1,6 @@
 <template>
   <div class="music">
-    <div class="header-play" :class="{fixed:isFixed}" >
+    <div class="header-play" :class="{fixed:isFixed}" v-if="showHeader">
       <div class="left">
         <base-icon name="icon-shipin-r" size="0.7rem"/>
         <strong>播放全部</strong>
@@ -18,13 +18,13 @@
     <div class="music-list" :class="{fixed:isFixed}">
       <div 
         class="music-list-item"
-        :class="{active: song.id == playList[playListIndex].id}"
+        :class="{active: song.id == nowPlayData.id}"
         v-for="(song, index) in songs" 
         :key="song.id" 
         @click="playMusic(index)"
       >
         <div class="left">
-          <span class="index" v-if="song.id !== playList[playListIndex].id">{{ index + 1 }}</span>
+          <span class="index" v-if="song.id !== nowPlayData.id">{{ index + 1 }}</span>
           <div class="play-status" v-else>
             <van-icon name="play" color="#dd1818" size="0.7rem" v-show="!playStatus"/>
             <van-icon name="pause" color="#dd1818" size="0.7rem" v-show="playStatus"/>
@@ -41,7 +41,7 @@
             name="icon-shipin" 
             color="#999"
             style="margin-right:20px" 
-            v-if="song.mv" 
+            v-if="song.mv || song.mvid" 
           />
           <van-icon name="wap-nav" color="#999" size="0.6rem"/>
         </div>
@@ -51,18 +51,34 @@
 </template>
 
 <script>
-  import { nextTick } from 'vue';
   import { storeToRefs } from 'pinia';
   import { useMusicControl } from '@/store/musicControl';
 
   export default {
     name: 'MusicList',
-    props: ['songs', 'subscribedCount', 'isFixed'],
+    props: {
+      songs: {
+        type: Array,
+        default: []
+      },
+      subscribedCount: {
+        type: Number,
+        default: 0
+      },
+      isFixed: {
+        type: Boolean,
+        default: false
+      },
+      showHeader: {
+        type: Boolean,
+        default: true
+      }
+    },
     setup(props) {
       // store
       const musicControl = useMusicControl();
       // 播放状态
-      const { playStatus,playList,playListIndex } = storeToRefs(musicControl);
+      const { playStatus,playList,playListIndex,nowPlayData } = storeToRefs(musicControl);
 
       // 播放音乐
       function playMusic(index) {
@@ -74,7 +90,8 @@
         playMusic,
         playListIndex,
         playStatus,
-        playList
+        playList,
+        nowPlayData,
       }
     }
   }
