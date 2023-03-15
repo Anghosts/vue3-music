@@ -41,13 +41,14 @@
     :songs="songs" 
     :subscribedCount="playListData.subscribedCount" 
     :isFixed="isFixed" 
+    :loading="loading"
+    :offsetTop="offsetTop"
   />
 </template>
 
 <script>
   import { useRoute } from 'vue-router';
   import { reactive,toRefs,onBeforeUnmount,onMounted } from 'vue';
-  import { useMusicControl } from '@/store/musicControl';
   import { getPlayListDetail,getAllMusic } from '@/api/playListDetail';
   import getScrollTop from '@/utils/getScrollTop';
 
@@ -79,6 +80,10 @@
         opacity: 0,
         // 音乐列表头部是否固定
         isFixed: false,
+        // 歌曲加载
+        loading: true,
+        // 歌曲列表头部距离视口的距离
+        offsetTop: 0,
       })
       
       getDetail();
@@ -93,25 +98,27 @@
       async function getSongs(id, limit=20, offset=0) {
         let { songs } = await getAllMusic(id, limit, offset);
         state.songs = songs;
+        state.loading = false;
       }
 
+      // 头部导航栏根据滚动变化背景颜色
       function handleScroll() {
         var header = document.querySelector('.play-header');
         var nav = document.querySelector('.top-nav');
+        var app = document.querySelector('#app');
+        state.offsetTop = nav.offsetHeight;
 
-        window.onscroll = function() {
+        app.onscroll = function(e) {
           let navHeight = nav.offsetHeight;
           let headerHeight = header.offsetHeight ;
           let baseHeight = headerHeight + navHeight;
-          let scrollTop = getScrollTop();
+          let scrollTop = e.target.scrollTop;
           let y = header.getBoundingClientRect().bottom.toFixed(0)
           
           if (y <= navHeight) {
-            state.isFixed = true;
             state.opacity = 1;
           }
           if (y == baseHeight || y > navHeight) {
-            state.isFixed = false;
             state.opacity = 0;
           }
           if (y > navHeight && y < baseHeight) {
@@ -207,7 +214,7 @@
           margin-left: 7px;
           margin-right: 5px;
           font-size: 16px;
-          color: #d3d3d3;
+          color: #ddd;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;

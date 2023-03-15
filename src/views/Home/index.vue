@@ -1,6 +1,5 @@
 <template>
   <div class="home-container">
-    <TopNav />
     <TopSwiper />
     <IconNav :iconNavList="iconNavList" size="1rem" iconColor="#dd1818" class="icon-nav"/>
     <PlayList />
@@ -9,7 +8,6 @@
 
 <script setup>
   import { reactive } from 'vue';
-  import TopNav from './TopNav.vue';
   import TopSwiper from './TopSwiper.vue';
   import PlayList from './PlayList.vue';
 

@@ -16,8 +16,8 @@ import '@/assets/iconfont/iconfont.css';
 // import 'amfe-flexible'
 
 createApp(App)
-  .use(router)
   .use(createPinia())
+  .use(router)
   .use(Vue3Marquee)
   .component(IconNav.name ,IconNav)
   .component(BaseIcon.name ,BaseIcon)

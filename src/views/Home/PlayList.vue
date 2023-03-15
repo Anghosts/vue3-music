@@ -17,7 +17,7 @@
             <span class="count">{{ formatPlayCount(item.playCount) }}</span>
           </div>
         </div>
-        <p class="play-name base-line-two">{{ item.name }}</p>
+        <p class="play-name van-multi-ellipsis--l2">{{ item.name }}</p>
       </van-swipe-item>
     </van-swipe>
   </div>
@@ -101,18 +101,11 @@
         img {
           border-radius: 10px;
         }
-        &:first-child .image-info {
-          padding-left: 0;
-        }
-        &:last-child .image-info {
-          padding-right: 0;
-        }
       }
       .play-name {
         box-sizing: border-box;
         padding: 0 6px;
         margin: 0;
-        height: 39px;
         line-height: 1.5;
         font-size: 13px;
       }

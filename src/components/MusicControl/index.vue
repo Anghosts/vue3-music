@@ -1,5 +1,4 @@
 <template>
-  <router-view />
   <div class="music-control" @click.self="showDetail = true" v-show="$route.meta.hidden ? false : true">
     <div class="left" @click="showDetail = true">
       <van-image

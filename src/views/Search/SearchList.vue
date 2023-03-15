@@ -1,31 +1,31 @@
 <template>
-  <MusicList :songs="songs" :showHeader="false" class="search-list"/>
+  <MusicList 
+    :songs="store.songs" 
+    :showSubscribed="false" 
+    :loading="store.loading"
+    :offsetTop="store.navHeight"
+    class="search-list"
+    :style="{'padding-top': store.navHeight + 'px'}"
+  />
 </template>
 
 <script>
-  import { ref } from 'vue';
-  import { getSearchList } from '@/api/search';
+  import { onMounted } from 'vue';
+  import { useSearch } from '@/store/search';
 
   export default {
     name: 'SearchList',
-    props: ['kw'],
-    setup(props) {
-      const songs = ref([]);
+    setup() {
+      const store = useSearch();
 
-      // 发送请求，根据关键字进行搜索
-      reqSearchList();
-      async function reqSearchList() {
-        // 请求数据
-        let { result } = await getSearchList(props.kw);
-        if (result !== {}) {
-          // 请求成功后，保存数据
-          songs.value = result.songs;
-        }
-      }
+      onMounted(() => {
+        // 首先清空数据
+        store.songs = [];
+        store.reqSearchList();
+      })
 
       return {
-        songs,
-        reqSearchList,
+        store,
       }
     }
   }
@@ -34,10 +34,8 @@
 
 <style lang="scss" scoped>
 .search-list {
+  min-height: 100vh;
   border-radius: 0;
-  :deep(.music-list) {
-    padding-bottom: 0;
-    padding-top: 55px;
-  }
+  padding-bottom: 0;
 }
 </style>

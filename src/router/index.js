@@ -1,32 +1,58 @@
 import { createRouter,createWebHashHistory } from "vue-router";
-import MusicControl from '@/components/MusicControl/index.vue';
+import TapBar from '@/components/TapBar.vue';
 
 // 创建路由规则
+// const routes = [{
+//     path: '/',
+//     component: ()=>import('@/views/Home/index.vue')
+//   }, {
+//     path: '/playlistdetail',
+//     component: ()=>import('@/views/PlayListDetail/index.vue')
+//   }, {
+//     path: '/search',
+//     meta: {
+//       hidden: true
+//     },
+//     component: ()=>import('@/views/Search/index.vue'),
+//     children: [{
+//       path: '',
+//       component: ()=>import('@/views/Search/SearchHistory.vue')
+//     }, {
+//       path: 'list',
+//       component: ()=>import('@/views/Search/SearchList.vue')
+//     }]
+//   }]
+
 const routes = [{
-    path: '/',
-    component: MusicControl,
-    children: [{
-      path: '',
-      component: ()=>import('@/views/Home/index.vue')
-    }]
+  path: '/',
+  component: TapBar,
+  children: [{
+    path: '',
+    component: ()=>import('@/views/Home/index.vue')
   }, {
-    path: '/playlistdetail',
-    component: MusicControl,
-    children: [{
-      path: '',
-      component: ()=>import('@/views/PlayListDetail/index.vue')
-    }]
+    path: 'home',
+    component: ()=>import('@/views/Home/index.vue')
   }, {
-    path: '/search',
-    component: MusicControl,
-    meta: {
-      hidden: true
-    },
-    children: [{
-      path: '',
-      component: ()=>import('@/views/Search/index.vue'),
-    }]
+    path: 'user',
+    component: ()=>import('@/views/User/index.vue')
   }]
+}, {
+  path: '/playlistdetail',
+  component: ()=>import('@/views/PlayListDetail/index.vue')
+}, {
+  path: '/search',
+  meta: {
+    hidden: true
+  },
+  component: ()=>import('@/views/Search/index.vue'),
+  children: [{
+    path: '',
+    component: ()=>import('@/views/Search/SearchHistory.vue')
+  }, {
+    path: 'list',
+    component: ()=>import('@/views/Search/SearchList.vue')
+  }]
+}]
 
 // 创建路由实例
 const router = createRouter({

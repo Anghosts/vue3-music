@@ -1,21 +1,25 @@
 <template>
   <div class="music">
-    <div class="header-play" :class="{fixed:isFixed}" v-if="showHeader">
-      <div class="left">
-        <base-icon name="icon-shipin-r" size="0.7rem"/>
-        <strong>播放全部</strong>
-        <span>（共{{ songs.length }}首）</span>
+    <van-sticky :offset-top="offsetTop" @change="headerChange">
+      <div class="header-play" :class="{fixed:isFixed}" v-if="showHeader">
+        <div class="left">
+          <base-icon name="icon-shipin-r" size="0.7rem"/>
+          <strong>播放全部</strong>
+          <span>（共{{ songs.length }}首）</span>
+        </div>
+        <div class="right">
+          <van-button 
+            icon="plus" 
+            type="danger"
+            color="#dd1818"  
+            class="star"
+            v-if="showSubscribed"
+          >收藏 {{ subscribedCount }}</van-button>
+        </div>
       </div>
-      <div class="right">
-        <van-button 
-          icon="plus" 
-          type="danger"
-          color="#dd1818"  
-          class="star"
-        >收藏 {{ subscribedCount }}</van-button>
-      </div>
-    </div>
-    <div class="music-list" :class="{fixed:isFixed}">
+    </van-sticky>
+    <van-skeleton title :row="12" :loading="loading">
+    <div class="music-list">
       <div 
         class="music-list-item"
         :class="{active: song.id == nowPlayData.id}"
@@ -47,10 +51,12 @@
         </div>
       </div>
     </div>
+    </van-skeleton>
   </div>
 </template>
 
 <script>
+  import { reactive,toRefs } from 'vue';
   import { storeToRefs } from 'pinia';
   import { useMusicControl } from '@/store/musicControl';
 
@@ -65,16 +71,27 @@
         type: Number,
         default: 0
       },
-      isFixed: {
-        type: Boolean,
-        default: false
-      },
       showHeader: {
         type: Boolean,
         default: true
+      },
+      showSubscribed: {
+        type: Boolean,
+        default: true
+      },
+      loading: {
+        type: Boolean,
+        default: true
+      },
+      offsetTop: {
+        type: Number,
+        default: 51
       }
     },
     setup(props) {
+      const state = reactive({
+        isFixed: false
+      })
       // store
       const musicControl = useMusicControl();
       // 播放状态
@@ -85,13 +102,19 @@
         musicControl.playList = props.songs;
         musicControl.setPlayIndex(0, index);
       }
+      // 列表头部状态变化
+      function headerChange(isFixed) {
+        state.isFixed = isFixed;
+      }
 
       return {
+        ...toRefs(state),
         playMusic,
         playListIndex,
         playStatus,
         playList,
         nowPlayData,
+        headerChange,
       }
     }
   }
@@ -101,6 +124,7 @@
   .music {
     overflow: hidden;
     border-radius: 20px 20px 0 0;
+    padding-bottom: 58px;
     background-color: #fff;
     .header-play {
       display: flex;
@@ -112,15 +136,12 @@
       transition: border-radius .25s;
       background-color: #fff;
       &.fixed {
-        position: fixed;
-        left: 0;
-        right: 0;
-        top: 50px;
         border-radius: 0;
       } 
       .left {
         display: flex;
         align-items: center;
+        height: 54px;
         strong {
           margin-left: 8px;
           font-size: 18px;
@@ -137,10 +158,6 @@
       }
     }
     .music-list {
-      padding-bottom: 58px;
-      &.fixed {
-        margin-top: 53px;
-      }
       .music-list-item {
         display: flex;
         justify-content: space-between;

@@ -1,81 +1,52 @@
 <template>
-  <div class="top-nav">
-    <div class="left">
-      <van-icon name="arrow-left" size="0.7rem" @click="HandleLast"/>
+  <div class="search-container">
+    <div class="top-nav" ref="topNav">
+      <div class="left">
+        <van-icon name="arrow-left" size="0.7rem" @click="$router.go(-1)"/>
+      </div>
+      <van-field
+        v-model="store.keyword"
+        class="search"
+        left-icon="search"
+        clear-icon="cross"
+        placeholder="搜索"
+        :autofocus="true"
+        :clearable="true"
+        @keydown.enter="handleSearch"
+      />
+      <div class="right" @click="handleSearch">搜索</div>
     </div>
-    <van-field
-      v-model="keyword"
-      class="search"
-      left-icon="search"
-      clear-icon="cross"
-      placeholder="搜索"
-      :autofocus="true"
-      :clearable="true"
-      @keydown.enter="handleSearch"
-    />
-    <div class="right" @click="handleSearch">搜索</div>
+    <router-view />
   </div>
-  <SearchHistory v-if="scene == 1" :searchHistory="searchList" @reqSearchList="reqSearchList"/>
-  <SearchList v-if="scene == 2" :kw="keyword" />
 </template>
 
 <script>
-  import { reactive, toRefs } from 'vue';
+  import { ref,onMounted } from 'vue';
   import { useRouter } from 'vue-router';
-  import SearchHistory from './SearchHistory.vue';
-  import SearchList from './SearchList.vue';
+  import { useSearch } from '@/store/search';
   
   export default {
     name: 'Search',
-    components: {
-      SearchHistory,
-      SearchList
-    },
     setup() {
-      const state = reactive({
-        keyword: '',
-        searchList: [],
-        songs: [],
-        scene: 1,  // 1: 显示搜索历史，2: 显示搜索结果
-      })
       const router = useRouter();
-
-      // 读取搜索历史
-      state.searchList = JSON.parse(localStorage.getItem('searchHistory')) || [];
+      const store = useSearch();
 
       // 搜索事件
       function handleSearch() {
-        if (!state.keyword.trim()) return;
-        state.searchList.unshift(state.keyword);
-        // 搜索历史去重
-        state.searchList = [...new Set(state.searchList)];
-        // 搜索历史限制长度
-        if (state.searchList.length > 10) {
-          state.searchList.pop();
-        }
         // 持久化存储搜索历史
-        localStorage.setItem('searchHistory', JSON.stringify(state.searchList));
-        reqSearchList();
+        store.setSearchHistory();
+        store.reqSearchList();
+        router.push('/search/list');
       }
-      // 切换搜索列表
-      function reqSearchList(kw=null) {
-        if (kw) state.keyword = kw;
-        state.scene = 2;
-      }
-      // 后退按钮
-      function HandleLast() {
-        if (state.scene == 2) {
-          state.scene = 1;
-        } else {
-          router.go(-1);
-        }
-      }
-
+      
+      const topNav = ref();
+      onMounted(() => {
+        store.navHeight = topNav.value.offsetHeight - 1;
+      })
       return {
-        ...toRefs(state),
         handleSearch,
-        reqSearchList,
-        HandleLast,
+        store,
+        topNav
       }
     }
   }
@@ -83,8 +54,12 @@
 </script>
 
 <style lang="scss" scoped>
+.search-container {
+  min-height: 100%;
+  background-color: #f8f9fd;
+}
 .top-nav {
-  padding: 10px;
+  padding: 8px;
   position: fixed;
   top: 0;
   left: 0;

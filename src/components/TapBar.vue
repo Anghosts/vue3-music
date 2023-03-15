@@ -1,0 +1,80 @@
+<template>
+  <div class="home-top-nav">
+    <van-icon name="wap-nav" size="0.8rem"/>
+    <div class="nav-list">
+      <span 
+        v-for="nav in navList" 
+        :key="nav.id" 
+        :class="{active: nav.id==active}"
+        @click="handleNav(nav)"
+      >{{ nav.title }}</span>
+    </div>
+    <van-icon name="search" size="0.7rem" @click="$router.push('/search')"/>
+  </div>
+  <van-tabs v-model:active="active" swipeable class="container">
+    <van-tab  title="我的">
+      <User/>
+    </van-tab>
+    <van-tab  title="发现">
+      <Home/>
+    </van-tab>
+    <van-tab  title="云村">
+      我的
+    </van-tab>
+    <van-tab  title="视频">
+      我的
+    </van-tab>
+  </van-tabs>
+</template>
+
+<script setup>
+  import { ref,reactive,watch } from 'vue';
+  import { useRouter } from 'vue-router';
+  import Home from '@/views/Home/index.vue';
+  import User from '@/views/User/index.vue';
+  
+  const active = ref(1);
+  const router = useRouter();
+  // 导航栏数据
+  const navList = reactive([
+    {id:0,title:'我的',to:'/user'},
+    {id:1,title:'发现',to:'/home'},
+    {id:2,title:'云村',to:'/'},
+    {id:3,title:'视频',to:'/'},
+  ])
+
+  // 导航栏切换
+  function handleNav(nav) {
+    active.value = nav.id;
+    router.push(nav.to);
+  }
+
+  watch(active, (val) => {
+    router.push(navList[val].to);
+  })
+
+</script>
+
+<style lang="scss" scoped>
+.home-top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  .nav-list {
+    span {
+      padding: 0 10px;
+      font-size: 18px;
+      &.active {
+        font-weight: bold;
+        color: #dd001b;
+      }
+    }
+  }
+}
+.container {
+  :deep(.van-tabs__wrap) {
+    display: none;
+  }
+}
+</style>
