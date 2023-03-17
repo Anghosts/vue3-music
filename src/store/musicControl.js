@@ -16,7 +16,7 @@ export const useMusicControl = defineStore('musicControl', {
         id: 1936609700
       }],
       playListIndex: 0,   // 当前播放音乐列表的索引
-      playStatus: false,  // 播放状态
+      playStatus: false,   // 播放状态
       showDetail: false,  // 歌曲详情界面的显示状态
       el: null,           // audio DOM元素
       lyric: '',          // 当前播放音乐的歌词

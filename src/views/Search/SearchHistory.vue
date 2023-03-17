@@ -33,6 +33,7 @@ import { useSearch } from '@/store/search';
       // 点击搜索历史记录项
       function handleSearchTag(kw) {
         store.keyword = kw;
+        store.pager = 1;
 
         // 将当前项放置第一位
         store.$patch(state => {

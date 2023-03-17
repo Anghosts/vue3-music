@@ -13,7 +13,9 @@ export const useSearch = defineStore('search', {
       songs: [],
       keyword: '',
       loading: true,
-      navHeight: 0
+      navHeight: 0,
+      songCount: 0,
+      pager: 1
     }
   },
   actions: {
@@ -39,19 +41,22 @@ export const useSearch = defineStore('search', {
       this.searchHistory = [];
     },
     // 发送请求，根据关键字进行搜索
-    async reqSearchList() {
-      this.loading = true;
+    async reqSearchList(limit) {
       // 判断搜索关键字是否为空，如果为空，就取搜索历史第一项
       if (!this.keyword) {
         let history = this.getSearchHistory();
         this.keyword = history.length > 0 ? history[0] : '';
       }
       // 请求数据
-      let { result } = await getSearchList(this.keyword);
+      let { result } = await getSearchList(this.keyword, limit);
+      this.loading = false;
       if (result && result !== {}) {
         // 请求成功后，保存数据
         this.songs = result.songs;
-        this.loading = false;
+        this.songCount = result.songCount;
+        return Promise.resolve(result);
+      } else {
+        return Promise.reject();
       }
     }
   },

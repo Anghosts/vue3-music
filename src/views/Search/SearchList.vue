@@ -6,6 +6,8 @@
     :offsetTop="store.navHeight"
     class="search-list"
     :style="{'padding-top': store.navHeight + 'px'}"
+    @onLoad="onLoadList"
+    :maxCount="100"
   />
 </template>
 
@@ -18,6 +20,14 @@
     setup() {
       const store = useSearch();
 
+      // 歌曲列表加载事件
+      function onLoadList() {
+        let limit = store.pager * 20;
+        store.reqSearchList(limit).then(() => {
+          store.pager += 1;
+        }).catch(err => err)
+      }
+
       onMounted(() => {
         // 首先清空数据
         store.songs = [];
@@ -26,6 +36,7 @@
 
       return {
         store,
+        onLoadList,
       }
     }
   }

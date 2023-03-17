@@ -4,12 +4,14 @@
       <van-image
         width="1.2rem"
         height="1.2rem"
+        round
         :src="nowPlayData.al.picUrl"
+        :class="{play: playStatus, pause: !playStatus}"
+        :error-icon="getAssetsFile('images/disc_default.png')"
+        :loading-icon="getAssetsFile('images/disc_default.png')"
+        class="music-image"
       />
-      <div class="song-name">
-        <span class="base-line-one">{{ nowPlayData.name }}</span>
-        <span>这里是歌词~</span>
-      </div>
+      <span class="van-ellipsis song-name">{{ nowPlayData.name }}</span>
     </div>
     <div class="right">
       <van-icon name="play-circle-o"  size="1rem" 
@@ -43,6 +45,7 @@
   import { storeToRefs } from 'pinia';
   import { useMusicControl } from '@/store/musicControl';
   import MusicDetail from './MusicDetail.vue';
+  import getAssetsFile from '@/utils/getAssetsFile';
 
   export default {
     name: 'MusicControl',
@@ -61,7 +64,8 @@
         store.currentTime = e.target.currentTime;
       }
       function audioError() {
-        alert('播放错误，需要登录或者需要VIP');
+        console.log('播放错误，以为您自动切换下一首！');
+        store.setPlayIndex(1);
       }
 
       onMounted(() => {
@@ -77,7 +81,8 @@
         showDetail,
         nowPlayData,
         audioTime,
-        audioError
+        audioError,
+        getAssetsFile
       }
     }
   }
@@ -102,18 +107,22 @@
       :deep(img) {
         border-radius: 0.6rem;
       }
+      .music-image {
+        animation: 20s linear 0s infinite paused play;
+
+        &.play {
+          animation-play-state: running;
+        }
+        &.pause {
+          animation-play-state: paused;
+        }
+      }
       .song-name {
         display: flex;
         flex-flow: column;
         margin-left: 10px;
         max-width: 190px;
-        span:first-child {
-          font-size: 17px;
-        }
-        span:last-child {
-          font-size: 12px;
-          color: #999;
-        }
+        font-size: 17px;
       }
     }
     .right {

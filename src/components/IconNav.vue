@@ -7,7 +7,7 @@
         :color="item.color || iconColor"
         :style="item.style || ''"
       />
-      <span :style="{color: textColor}">{{ item.title || '' }}</span>
+      <span :style="{color: textColor, 'font-size': textSize}">{{ item.title || '' }}</span>
     </div>
   </div>
 </template>
@@ -32,6 +32,10 @@ export default {
     size: {
       type: String,
       default: '0.7rem'
+    },
+    textSize: {
+      type: String,
+      default: '14px'
     }
   }
 }
@@ -47,9 +51,7 @@ export default {
       display: flex;
       flex-direction: column;
       align-items: center;
-      >span {
-        font-size: 14px;
-      }
+      padding: 5px;
     }
   }
 </style>

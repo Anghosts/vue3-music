@@ -6,7 +6,6 @@
 </template>
 
 <script>
-  import { reactive,toRefs } from 'vue';
   import { useUser } from '@/store/user';
   import { getLoginStatus } from '@/api/user'
   import Login from './Login.vue';

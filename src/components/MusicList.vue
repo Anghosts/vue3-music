@@ -5,7 +5,7 @@
         <div class="left">
           <base-icon name="icon-shipin-r" size="0.7rem"/>
           <strong>播放全部</strong>
-          <span>（共{{ songs.length }}首）</span>
+          <span>（共{{ maxCount }}首）</span>
         </div>
         <div class="right">
           <van-button 
@@ -19,44 +19,87 @@
       </div>
     </van-sticky>
     <van-skeleton title :row="12" :loading="loading">
-    <div class="music-list">
-      <div 
-        class="music-list-item"
-        :class="{active: song.id == nowPlayData.id}"
-        v-for="(song, index) in songs" 
-        :key="song.id" 
-        @click="playMusic(index)"
+      <van-list
+        v-model:loading="listLoading"
+        :finished="finished"
+        finished-text="没有更多了"
+        @load="onLoad"
+        class="music-list"
       >
-        <div class="left">
-          <span class="index" v-if="song.id !== nowPlayData.id">{{ index + 1 }}</span>
-          <div class="play-status" v-else>
-            <van-icon name="play" color="#dd1818" size="0.7rem" v-show="!playStatus"/>
-            <van-icon name="pause" color="#dd1818" size="0.7rem" v-show="playStatus"/>
-          </div>
-          <div class="music-info">
-            <span class="title base-line-one">{{ song.name }}</span>
+        <van-cell 
+          class="music-list-item"
+          :class="{active: song.id == nowPlayData.id}"
+          v-for="(song,index) in songs" 
+          :key="song.id" 
+          center
+          :title="song.name"
+          title-style="font-size: 0.45rem;"
+          title-class="van-ellipsis title"
+          label-class="van-ellipsis"
+          value-class="music-list-right"
+          @click="playMusic(index)"
+        >
+          <template #icon>
+            <span class="index" v-if="song.id !== nowPlayData.id">{{ index + 1 }}</span>
+            <div class="play-status" v-else>
+              <van-icon name="play" color="#dd1818" size="0.7rem" v-show="!playStatus"/>
+              <van-icon name="pause" color="#dd1818" size="0.7rem" v-show="playStatus"/>
+            </div>
+          </template>
+          <template #label>
             <div class="author base-line-one">
               <span v-for="author in song.ar" :key="author.id">{{ author.name }}</span>
             </div>
+          </template>
+          <template #right-icon>
+            <base-icon 
+              name="icon-shipin" 
+              color="#999"
+              style="margin-right:12px;padding-left:8px;" 
+              v-if="song.mv || song.mvid" 
+            />
+            <van-icon name="wap-nav" color="#999" size="0.7rem" style="padding-left:8px;"/>
+          </template>
+        </van-cell>
+      </van-list>
+      <!-- <div class="music-list">
+        <div 
+          class="music-list-item"
+          :class="{active: song.id == nowPlayData.id}"
+          v-for="(song, index) in songs" 
+          :key="song.id" 
+          @click="playMusic(index)"
+        >
+          <div class="left">
+            <span class="index" v-if="song.id !== nowPlayData.id">{{ index + 1 }}</span>
+            <div class="play-status" v-else>
+              <van-icon name="play" color="#dd1818" size="0.7rem" v-show="!playStatus"/>
+              <van-icon name="pause" color="#dd1818" size="0.7rem" v-show="playStatus"/>
+            </div>
+            <div class="music-info">
+              <span class="title base-line-one">{{ song.name }}</span>
+              <div class="author base-line-one">
+                <span v-for="author in song.ar" :key="author.id">{{ author.name }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="right">
+            <base-icon 
+              name="icon-shipin" 
+              color="#999"
+              style="margin-right:20px" 
+              v-if="song.mv || song.mvid" 
+            />
+            <van-icon name="wap-nav" color="#999" size="0.6rem"/>
           </div>
         </div>
-        <div class="right">
-          <base-icon 
-            name="icon-shipin" 
-            color="#999"
-            style="margin-right:20px" 
-            v-if="song.mv || song.mvid" 
-          />
-          <van-icon name="wap-nav" color="#999" size="0.6rem"/>
-        </div>
-      </div>
-    </div>
+      </div> -->
     </van-skeleton>
   </div>
 </template>
 
 <script>
-  import { reactive,toRefs } from 'vue';
+  import { reactive,toRefs,watch } from 'vue';
   import { storeToRefs } from 'pinia';
   import { useMusicControl } from '@/store/musicControl';
 
@@ -86,11 +129,18 @@
       offsetTop: {
         type: Number,
         default: 51
+      },
+      maxCount: {
+        type: Number,
+        default: 30
       }
     },
-    setup(props) {
+    emits: ['onLoad'],
+    setup(props,context) {
       const state = reactive({
-        isFixed: false
+        isFixed: false,
+        finished: false,
+        listLoading: false,
       })
       // store
       const musicControl = useMusicControl();
@@ -107,6 +157,18 @@
         state.isFixed = isFixed;
       }
 
+      // 播放列表加载事件
+      function onLoad() {
+        if (props.songs.length >= props.maxCount) {
+          state.finished = true;
+        } else {
+          context.emit('onLoad');
+          setTimeout(() => {
+            state.listLoading = false;
+          }, 1000)
+        }
+      }
+
       return {
         ...toRefs(state),
         playMusic,
@@ -115,6 +177,7 @@
         playList,
         nowPlayData,
         headerChange,
+        onLoad,
       }
     }
   }
@@ -158,54 +221,39 @@
       }
     }
     .music-list {
+      :deep(.active) {
+        .title>span {
+          color: #dd1818;
+        }
+      }
       .music-list-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
         padding: 10px;
         &:active {
           background-color: #eee;
         }
-        &.active {
-          .title {
-            color: #dd1818;
-          }
+        .index {
+          width: 25px;
+          margin-right: 10px;
+          text-align: center;
+          font-size: 12px;
+          color: #777;
         }
-        .left {
-          display: flex;
-          align-items: center;
-          .index {
-            width: 25px;
-            margin-right: 10px;
-            text-align: center;
-            font-size: 15px;
-            color: #777;
-          }
-          .play-status {
-            width: 25px;
-            margin-right: 10px;
-          }
-          .music-info {
-            display: flex;
-            flex-direction: column;
-            .title {
-              max-width: 240px;
-              font-size: 17px;
-            }
-            .author {
-              max-width: 240px;
-              margin-top: 3px;
-              font-size: 12px;
-              color: #777;
-              span {
-                margin-right: 7px;
-              }
-            }
-          }
+        .play-status {
+          width: 25px;
+          margin-right: 10px;
         }
-        .right {
-          display: flex;
-          align-items: center;
+        .title {
+          max-width: 240px;
+          font-size: 17px;
+        }
+        .author {
+          max-width: 240px;
+          margin-top: 3px;
+          font-size: 12px;
+          color: #777;
+          span {
+            margin-right: 7px;
+          }
         }
       }
     }

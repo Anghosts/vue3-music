@@ -36,6 +36,8 @@
         // 持久化存储搜索历史
         store.setSearchHistory();
         store.reqSearchList();
+        // 初始化页码
+        store.pager = 1;
         router.push('/search/list');
       }
       

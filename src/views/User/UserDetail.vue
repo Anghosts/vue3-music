@@ -17,11 +17,16 @@
       </div>
     </div>
   </div>
-  <div class="my-like-music">
-    <div class="first-music">
-      <img src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg" alt="">
-      <van-icon name="like" size="0.85rem" class="like-icon"/>
-    </div>
+  <IconNav 
+    :iconNavList="iconNavList" 
+    iconColor="#dd001b" 
+    size="0.85rem" 
+    textSize="0.35rem"
+    textColor="#666"
+    class="icon-nav"
+  />
+  <div class="my-like-music" @click="$router.push('/playlistdetail?id=' + likePlaylist.id)">
+    <img :src="likePlaylist.coverImgUrl" alt="" class="first-music">
     <div class="like-text">
       <p>我喜欢的音乐</p>
       <span>{{ likeCount }}首</span>
@@ -47,6 +52,7 @@
       >
         <van-cell 
           center
+          @click="$router.push('/playlistdetail?id=' + item.id)"
           v-for="item in playlistItem.list" 
           :key="item.id" 
           :title="item.name" 
@@ -94,9 +100,16 @@
         playlistActive: 0,
         loading: false,
         finished: false,
+        likePlaylist: [],
         playlist: [
           { title: '创建歌单', list: [], pager: 1 },
           { title: '收藏歌单', list: [], pager: 1 },
+        ],
+        iconNavList: [
+          {title:'最近播放', icon:'clock'},
+          {title:'我的好友', icon:'friends'},
+          {title:'收藏和赞', icon:'star'},
+          {title:'本地/下载', icon:'music'},
         ]
       })
       const store = useUser();
@@ -122,22 +135,26 @@
         loadPlaylist();
       }
 
+      // 加载用户歌单
       async function loadPlaylist() {
         if (!state.uid) return
         
         // 计算数据偏移量
         let offset = 0;
-        if (state.playlist[0].list.length >= state.playlist[0].pager * 30) {
-          state.playlist[0].pager += 1;
-          offset = (state.playlist[0].pager - 1) * 30;
-        } 
-        if (state.playlist[1].list.length >= state.playlist[1].pager * 30) {
-          state.playlist[1].pager += 1;
-          offset = (state.playlist[1].pager - 1) * 30;
-        }
+        let limit = 30;
+        // if (state.playlist[0].list.length >= state.playlist[0].pager * limit) {
+        //   state.finished = false;
+        //   state.playlist[0].pager += 1;
+        //   offset = (state.playlist[0].pager - 1) * limit;
+        // } 
+        // if (state.playlist[1].list.length >= state.playlist[1].pager * limit) {
+        //   state.finished = false;
+        //   state.playlist[1].pager += 1;
+        //   offset = (state.playlist[1].pager - 1) * limit;
+        // }
 
         // 请求数据
-        let { playlist } = await getUserPlaylist(state.uid, 30, offset);
+        let { playlist } = await getUserPlaylist(state.uid, limit, offset);
         // 保存歌单数据
         state.playlist[0].list = playlist.filter((item,index) => {
           return !item.subscribed && index != 0;
@@ -145,10 +162,15 @@
         state.playlist[1].list = playlist.filter(item => {
           return item.subscribed;
         })
+        state.likePlaylist = playlist[0];
         // 保存我喜欢的音乐列表歌曲数量
         state.likeCount = playlist[0].trackCount;
         state.loading = false;
-        state.finished = true;
+
+        // 数据加载完成
+        if (playlist.length <= state.playlist[0].pager * limit || playlist.length <= state.playlist[1].pager * limit) {
+          state.finished = true;
+        }
     };
 
       return {
@@ -195,13 +217,24 @@
     }
   }
 }
+.icon-nav {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #fff;
+  :deep(.icon-nav-item) {
+    span {
+      margin-top: 4px;
+    }
+  }
+}
 .my-like-music {
   overflow: hidden;
   position: relative;
   display: flex;
   align-items: center;
   margin-top: 10px;
-  padding: 10px;
+  padding: 15px;
   border-radius: 10px;
   background-color: #fff;
   &::before {
@@ -217,24 +250,14 @@
   }
   &:active {
     &::before {
-      animation: scale .2s;
+      animation: scale .25s;
     }
   }
   .first-music {
-    position: relative;
-    img {
-      width: 58px;
-      height: 55px;
-      border-radius: 7px;
-      filter: brightness(70%);
-    }
-    .like-icon {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: #fff;
-    }
+    z-index: 10;
+    width: 58px;
+    height: 55px;
+    border-radius: 7px;
   }
   .like-text {
     z-index: 10;

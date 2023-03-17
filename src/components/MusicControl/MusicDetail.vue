@@ -278,6 +278,7 @@
     }
   }
   .lyric {
+    flex: 1;
     margin: 20px 0;
     padding: 0 15px;
     text-align: center;

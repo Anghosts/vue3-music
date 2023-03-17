@@ -8,7 +8,7 @@ export function getPlayListDetail(id) {
 }
 
 // 获取歌单全部歌曲信息
-export function getAllMusic(id, limit=10, offset=0) {
+export function getAllMusic(id, limit=20, offset=0) {
   return request({
     url: '/playlist/track/all',
     params: {

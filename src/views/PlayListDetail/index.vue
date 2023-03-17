@@ -43,6 +43,8 @@
     :isFixed="isFixed" 
     :loading="loading"
     :offsetTop="offsetTop"
+    :maxCount="maxCount"
+    @onLoad="onLoadListplay"
   />
 </template>
 
@@ -50,7 +52,6 @@
   import { useRoute } from 'vue-router';
   import { reactive,toRefs,onBeforeUnmount,onMounted } from 'vue';
   import { getPlayListDetail,getAllMusic } from '@/api/playListDetail';
-  import getScrollTop from '@/utils/getScrollTop';
 
   export default {
     name: 'PlayListDetail',
@@ -84,21 +85,34 @@
         loading: true,
         // 歌曲列表头部距离视口的距离
         offsetTop: 0,
+        // 页码
+        pager: 1,
+        // 最大歌曲数
+        maxCount: 0
       })
+
+      const route = useRoute();
       
       getDetail();
       // 获取歌单详情数据
       async function getDetail() {
-        let id = useRoute().query.id;
+        let id = route.query.id;
         let { playlist } = await getPlayListDetail(id);
         state.playListData = playlist;
+        state.maxCount = playlist.trackCount;
         getSongs(id);
       }
       // 获取歌单全部歌曲信息
-      async function getSongs(id, limit=20, offset=0) {
-        let { songs } = await getAllMusic(id, limit, offset);
-        state.songs = songs;
-        state.loading = false;
+      function getSongs(id, limit=20, offset=0) {
+        return new Promise((resolve, reject) => {
+          getAllMusic(id, limit, offset).then(result => {
+            state.songs = result.songs;
+            state.loading = false;
+            resolve(result);
+          }).catch(err => {
+            reject(err);
+          })
+        })
       }
 
       // 头部导航栏根据滚动变化背景颜色
@@ -127,6 +141,18 @@
         }
       }
 
+      // 歌单音乐列表加载事件
+      function onLoadListplay() {
+        let limit = state.pager * 20;
+        getSongs(route.query.id, limit).then(result => {
+          if (result.code == 200) {
+            state.pager += 1;
+          }
+        }).catch(err => {
+          console.log(err);
+        })
+      }
+
       onMounted(() => {
         handleScroll();
       })
@@ -136,6 +162,7 @@
 
       return {
         ...toRefs(state),
+        onLoadListplay
       }
     }
   }
@@ -187,7 +214,6 @@
   }
   .play-info {
     display: flex;
-    justify-content: space-between;
     padding: 5px 10px 10px;
     padding-top: 0;
     margin-top: 51px;
@@ -227,8 +253,10 @@
     }
   }
   :deep(.icon-nav) {
-    .icon-nav-item span {
-      margin-top: 5px;
+    .icon-nav-item {
+      span {
+        margin-top: 5px;
+      }
     }
   }
  }
